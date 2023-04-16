@@ -34,8 +34,8 @@ const ValidUsersCrudTable = () => {
         [cellId: string]: string;
     }>({});
 
-    const handleCreateNewRow = (values: UserType) => {
-        tableData.push(values);
+    const handleCreateNewRow = (values: Omit<UserType, 'id'>) => {
+        tableData.push({...values, id: tableData.length + 1});
         setTableData([...tableData]);
     };
 
@@ -215,11 +215,16 @@ const ValidUsersCrudTable = () => {
 interface CreateModalProps {
     columns: MRT_ColumnDef<UserType>[];
     onClose: () => void;
-    onSubmit: (values: UserType) => void;
+    onSubmit: (values: Omit<UserType, 'id'>) => void;
     open: boolean;
 }
 
-//example of creating a mui dialog modal for creating new rows
+
+type newAccountValues = {
+    username: string;
+    password: string;
+    email: string;
+}
 export const CreateNewAccountModal = ({
                                           open,
                                           columns,
@@ -227,7 +232,7 @@ export const CreateNewAccountModal = ({
                                           onSubmit,
                                       }: CreateModalProps) => {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const [values, setValues] = useState<any>(() =>
+    const [values, setValues] = useState<newAccountValues>(() =>
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         columns.reduce((acc, column) => {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -238,8 +243,25 @@ export const CreateNewAccountModal = ({
     );
 
     const handleSubmit = () => {
-        //put your validation logic here
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        // Perform values validate here
+
+        // Check if values.email is email:
+        if (!validateEmail(values.email)) {
+            alert('Email is not valid');
+            return;
+        }
+
+        // Check if values.username is username:
+        if (!validateUsername(values.username)) {
+            alert('Username is not valid');
+            return;
+        }
+
+        // Check if values.password is password:
+        if (!validateRequired(values.password)) {
+            alert('Password is not valid');
+            return;
+        }
         onSubmit(values);
         onClose();
     };
@@ -256,8 +278,9 @@ export const CreateNewAccountModal = ({
                             gap: '1.5rem',
                         }}
                     >
-                        {columns.map((column) => (
-                            <TextField
+                        {columns.map((column) => {
+                            if (column.accessorKey === 'id') return null;
+                            return <TextField
                                 key={column.accessorKey}
                                 label={column.header}
                                 name={column.accessorKey}
@@ -265,7 +288,8 @@ export const CreateNewAccountModal = ({
                                     setValues({...values, [e.target.name]: e.target.value})
                                 }
                             />
-                        ))}
+                        })
+                        }
                     </Stack>
                 </form>
             </DialogContent>
@@ -287,6 +311,9 @@ const validateEmail = (email: string) =>
         .match(
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         );
+
+
+// From 3 to 20 characters, only letters, numbers, underscore and hyphen
 const validateUsername = (username: string) =>
     !!username.length &&
     username.match(/^[a-zA-Z0-9_-]{3,20}$/);
