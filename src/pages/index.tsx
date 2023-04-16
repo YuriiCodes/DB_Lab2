@@ -2,6 +2,8 @@ import {type NextPage} from "next";
 
 import {Box, Button, Container} from "@mui/material";
 import {UsersTable} from "~/components/UsersTable";
+import UsersCrudTable from "~/components/UsersCrudTable/UsersCrudTable";
+import ValidUsersCrudTable from "~/components/UsersCrudTable/ValidUsersCrudTable";
 
 const Home: NextPage = () => {
     // call the trpc client & get all users
@@ -21,6 +23,7 @@ const Home: NextPage = () => {
             >
 
                 <UsersTable />
+                <ValidUsersCrudTable />
             </Box>
         </Container>
 
