@@ -21,13 +21,46 @@ import {Delete, Edit} from '@mui/icons-material';
 import {type inferRouterOutputs} from "@trpc/server";
 import {type AppRouter} from "~/server/api/root";
 import {api} from "~/utils/api";
+import {create} from "@mui/material/styles/createTransitions";
+import toast from "react-hot-toast";
 
 
 type RouterOutput = inferRouterOutputs<AppRouter>;
 export type UserType = RouterOutput["users"]["getAll"][0];
 
 const ValidUsersCrudTable = () => {
+    const ctx = api.useContext();
+
     const {data, isLoading, isError} = api.users.getAll.useQuery();
+    const {mutate: createUser} = api.users.create.useMutation({
+        onSuccess: () => {
+            void ctx.users.invalidate();
+            toast.success("User created successfully!");
+        },
+        onError: (e) => {
+            const errorMessage = e.data?.zodError?.fieldErrors.content;
+            if (errorMessage && errorMessage[0]) {
+                toast.error(errorMessage[0]);
+            } else {
+                toast.error("Failed to add new user! Please try again later.");
+            }
+        }
+    });
+
+    const {mutate: deleteUser} = api.users.delete.useMutation({
+        onSuccess: () => {
+            void ctx.users.invalidate();
+            toast.success("User deleted successfully!");
+        },
+        onError: (e) => {
+            const errorMessage = e.data?.zodError?.fieldErrors.content;
+            if (errorMessage && errorMessage[0]) {
+                toast.error(errorMessage[0]);
+            } else {
+                toast.error("Failed to delete new user! Please try again later.");
+            }
+        }
+    });
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [tableData, setTableData] = useState<UserType[]>(data || []);
     const [validationErrors, setValidationErrors] = useState<{
@@ -35,6 +68,7 @@ const ValidUsersCrudTable = () => {
     }>({});
 
     const handleCreateNewRow = (values: Omit<UserType, 'id'>) => {
+        createUser(values);
         tableData.push({...values, id: tableData.length + 1});
         setTableData([...tableData]);
     };
@@ -63,8 +97,13 @@ const ValidUsersCrudTable = () => {
                 return;
             }
             //send api delete request here, then refetch or update local table data for re-render
-            tableData.splice(row.index, 1);
-            setTableData([...tableData]);
+
+
+            deleteUser({
+                id: row.getValue('id')
+            });
+            // tableData.splice(row.index, 1);
+            // setTableData([...tableData]);
         },
         [tableData],
     );
@@ -86,6 +125,11 @@ const ValidUsersCrudTable = () => {
                             break;
                         case 'username':
                             if (!validateUsername(event.target.value)) {
+                                isValid = false;
+                            }
+                            break;
+                        case 'password':
+                            if (!validatePassword(event.target.value)) {
                                 isValid = false;
                             }
                             break;
@@ -198,7 +242,7 @@ const ValidUsersCrudTable = () => {
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        Create New Account
+                        Create New User
                     </Button>
                 )}
             />
@@ -247,19 +291,19 @@ export const CreateNewAccountModal = ({
 
         // Check if values.email is email:
         if (!validateEmail(values.email)) {
-            alert('Email is not valid');
+            toast.error('Email is not valid');
             return;
         }
 
         // Check if values.username is username:
         if (!validateUsername(values.username)) {
-            alert('Username is not valid');
+            toast.error('Username is not valid. It must be from 3 to 20 characters, and not include special characters like whitespace');
             return;
         }
 
         // Check if values.password is password:
-        if (!validateRequired(values.password)) {
-            alert('Password is not valid');
+        if (!validatePassword(values.password)) {
+            toast.error('Password is not valid. It must be from 8 to 20 characters');
             return;
         }
         onSubmit(values);
@@ -304,6 +348,12 @@ export const CreateNewAccountModal = ({
 };
 
 const validateRequired = (value: string) => !!value.length;
+
+
+//8 to 20 chars
+const validatePassword = (password: string) =>
+    !!password.length && password.length >= 8 && password.length <= 20;
+
 const validateEmail = (email: string) =>
     !!email.length &&
     email
