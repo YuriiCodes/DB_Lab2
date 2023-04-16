@@ -1,8 +1,7 @@
 import {type NextPage} from "next";
 
-import {Box, Button, Container} from "@mui/material";
+import {Box, Container} from "@mui/material";
 import {UsersTable} from "~/components/UsersTable";
-import UsersCrudTable from "~/components/UsersCrudTable/UsersCrudTable";
 import ValidUsersCrudTable from "~/components/UsersCrudTable/ValidUsersCrudTable";
 
 const Home: NextPage = () => {

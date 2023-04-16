@@ -13,13 +13,11 @@ import {
     DialogContent,
     DialogTitle,
     IconButton,
-    MenuItem,
     Stack,
     TextField,
     Tooltip,
 } from '@mui/material';
-import { Delete, Edit } from '@mui/icons-material';
-import { states } from './makeData';
+import {Delete, Edit} from '@mui/icons-material';
 import {type inferRouterOutputs} from "@trpc/server";
 import {type AppRouter} from "~/server/api/root";
 import {api} from "~/utils/api";
@@ -42,7 +40,8 @@ const ValidUsersCrudTable = () => {
     };
 
     const handleSaveRowEdits: MaterialReactTableProps<UserType>['onEditingRowSave'] =
-        async ({ exitEditingMode, row, values }) => {
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async ({exitEditingMode, row, values}) => {
             if (!Object.keys(validationErrors).length) {
                 tableData[row.index] = values;
                 //send/receive api updates here, then refetch or update local table data for re-render
@@ -58,7 +57,8 @@ const ValidUsersCrudTable = () => {
     const handleDeleteRow = useCallback(
         (row: MRT_Row<UserType>) => {
             if (
-                !confirm(`Are you sure you want to delete ${row.getValue('firstName')}`)
+                // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+                !confirm(`Are you sure you want to delete ${row.getValue('username')}`)
             ) {
                 return;
             }
@@ -77,12 +77,24 @@ const ValidUsersCrudTable = () => {
                 error: !!validationErrors[cell.id],
                 helperText: validationErrors[cell.id],
                 onBlur: (event) => {
-                    const isValid =
-                        cell.column.id === 'email'
-                            ? validateEmail(event.target.value)
-                            : cell.column.id === 'age'
-                                ? validateAge(+event.target.value)
-                                : validateRequired(event.target.value);
+                    let isValid = true;
+                    switch (cell.column.id) {
+                        case 'email':
+                            if (!validateEmail(event.target.value)) {
+                                isValid = false;
+                            }
+                            break;
+                        case 'username':
+                            if (!validateUsername(event.target.value)) {
+                                isValid = false;
+                            }
+                            break;
+                        default:
+                            if (!validateRequired(event.target.value)) {
+                                isValid = false;
+                            }
+                            break;
+                    }
                     if (!isValid) {
                         //set validation error for cell if invalid
                         setValidationErrors({
@@ -116,7 +128,7 @@ const ValidUsersCrudTable = () => {
                 accessorKey: 'username',
                 header: 'User Name',
                 size: 140,
-                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+                muiTableBodyCellEditTextFieldProps: ({cell}) => ({
                     ...getCommonEditTextFieldProps(cell),
                 }),
             },
@@ -124,14 +136,14 @@ const ValidUsersCrudTable = () => {
                 accessorKey: 'password',
                 header: 'Password',
                 size: 140,
-                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+                muiTableBodyCellEditTextFieldProps: ({cell}) => ({
                     ...getCommonEditTextFieldProps(cell),
                 }),
             },
             {
                 accessorKey: 'email',
                 header: 'Email',
-                muiTableBodyCellEditTextFieldProps: ({ cell }) => ({
+                muiTableBodyCellEditTextFieldProps: ({cell}) => ({
                     ...getCommonEditTextFieldProps(cell),
                     type: 'email',
                 }),
@@ -166,16 +178,16 @@ const ValidUsersCrudTable = () => {
                 enableEditing
                 onEditingRowSave={handleSaveRowEdits}
                 onEditingRowCancel={handleCancelRowEdits}
-                renderRowActions={({ row, table }) => (
-                    <Box sx={{ display: 'flex', gap: '1rem' }}>
+                renderRowActions={({row, table}) => (
+                    <Box sx={{display: 'flex', gap: '1rem'}}>
                         <Tooltip arrow placement="left" title="Edit">
                             <IconButton onClick={() => table.setEditingRow(row)}>
-                                <Edit />
+                                <Edit/>
                             </IconButton>
                         </Tooltip>
                         <Tooltip arrow placement="right" title="Delete">
                             <IconButton color="error" onClick={() => handleDeleteRow(row)}>
-                                <Delete />
+                                <Delete/>
                             </IconButton>
                         </Tooltip>
                     </Box>
@@ -214,15 +226,20 @@ export const CreateNewAccountModal = ({
                                           onClose,
                                           onSubmit,
                                       }: CreateModalProps) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const [values, setValues] = useState<any>(() =>
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         columns.reduce((acc, column) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             acc[column.accessorKey ?? ''] = '';
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return acc;
         }, {} as any),
     );
 
     const handleSubmit = () => {
         //put your validation logic here
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         onSubmit(values);
         onClose();
     };
@@ -235,7 +252,7 @@ export const CreateNewAccountModal = ({
                     <Stack
                         sx={{
                             width: '100%',
-                            minWidth: { xs: '300px', sm: '360px', md: '400px' },
+                            minWidth: {xs: '300px', sm: '360px', md: '400px'},
                             gap: '1.5rem',
                         }}
                     >
@@ -245,14 +262,14 @@ export const CreateNewAccountModal = ({
                                 label={column.header}
                                 name={column.accessorKey}
                                 onChange={(e) =>
-                                    setValues({ ...values, [e.target.name]: e.target.value })
+                                    setValues({...values, [e.target.name]: e.target.value})
                                 }
                             />
                         ))}
                     </Stack>
                 </form>
             </DialogContent>
-            <DialogActions sx={{ p: '1.25rem' }}>
+            <DialogActions sx={{p: '1.25rem'}}>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button color="secondary" onClick={handleSubmit} variant="contained">
                     Create New Account
@@ -270,6 +287,9 @@ const validateEmail = (email: string) =>
         .match(
             /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
         );
-const validateAge = (age: number) => age >= 18 && age <= 50;
+const validateUsername = (username: string) =>
+    !!username.length &&
+    username.match(/^[a-zA-Z0-9_-]{3,20}$/);
+
 
 export default ValidUsersCrudTable;
