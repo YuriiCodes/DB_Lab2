@@ -1,0 +1,15 @@
+version: '3.9'
+services:
+  database:
+    image: postgres:alpine
+    container_name: BdLab2
+    restart: always
+    ports:
+      - '5435:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: BdLab2
+volumes:
+  db_data:

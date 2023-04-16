@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Iteration {
+  id          Int     @id @default(autoincrement())
+  projectId   Int
+  project     Project @relation(fields: [projectId], references: [id])
+  name        String
+  description String
+  tasks       Task[]
+}
+
+model Project {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  description   String
+  joinCode      String?
+  ownerId       Int
+  owner         User            @relation(fields: [ownerId], references: [id])
+  iterations    Iteration[]
+  users         User[]          @relation("UserProject")
+  UsersProjects UsersProjects[]
+}
+
+model Salary {
+  id     Int   @id @default(autoincrement())
+  userId Int   @unique
+  user   User  @relation(fields: [userId], references: [id])
+  amount Float
+}
+
+model Task {
+  id          Int       @id @default(autoincrement())
+  iterationId Int
+  iteration   Iteration @relation(fields: [iterationId], references: [id])
+  points      Float
+  title       String
+  description String
+  status      String
+  creatorId   Int
+  creator     User      @relation(fields: [creatorId], references: [id], name: "creator")
+  executorId  Int?
+  executor    User?     @relation(fields: [executorId], references: [id], name: "executor")
+}
+
+model User {
+  id       Int       @id @default(autoincrement())
+  username String    @unique
+  email    String    @unique
+  salary   Salary?
+  password String
+  projects Project[] @relation("UserProject")
+  Project  Project[]
+
+  UsersProjects UsersProjects[]
+
+  // add user relation to task, named creator
+  creator Task[] @relation("creator")
+
+  // add user relation to task, named executor
+  executor Task[] @relation("executor")
+}
+
+model UsersProjects {
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+  projectId Int
+  project   Project @relation(fields: [projectId], references: [id])
+
+  @@id([userId, projectId])
+}
