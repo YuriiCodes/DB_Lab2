@@ -35,14 +35,13 @@ async function main() {
             }
         )
 
-        await prisma.usersProjects.create({
-                data: {
-                    userId: i + 1,
-                    projectId: i + 1,
-
-                }
+        await prisma.projectMember.create({
+            data: {
+                userId: i + 1,
+                projectId: i + 1,
             }
-        )
+        })
+
     }
 
     //     10 iterations(2 for each project),

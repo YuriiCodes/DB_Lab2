@@ -21,7 +21,6 @@ import {Delete, Edit} from '@mui/icons-material';
 import {type inferRouterOutputs} from "@trpc/server";
 import {type AppRouter} from "~/server/api/root";
 import {api} from "~/utils/api";
-import {create} from "@mui/material/styles/createTransitions";
 import toast from "react-hot-toast";
 
 
@@ -43,6 +42,21 @@ const ValidUsersCrudTable = () => {
                 toast.error(errorMessage[0]);
             } else {
                 toast.error("Failed to add new user! Please try again later.");
+            }
+        }
+    });
+
+    const {mutate: updateUser} = api.users.update.useMutation({
+        onSuccess: () => {
+            void ctx.users.invalidate();
+            toast.success("User updated successfully!");
+        },
+        onError: (e) => {
+            const errorMessage = e.data?.zodError?.fieldErrors.content;
+            if (errorMessage && errorMessage[0]) {
+                toast.error(errorMessage[0]);
+            } else {
+                toast.error("Failed to update the user! Please try again later.");
             }
         }
     });
@@ -77,8 +91,11 @@ const ValidUsersCrudTable = () => {
         // eslint-disable-next-line @typescript-eslint/require-await
         async ({exitEditingMode, row, values}) => {
             if (!Object.keys(validationErrors).length) {
+
+                // send || receive api updates here,
+                // then refetch or update local table data for re-render
+                updateUser({...values, id: Number(values.id)})
                 tableData[row.index] = values;
-                //send/receive api updates here, then refetch or update local table data for re-render
                 setTableData([...tableData]);
                 exitEditingMode(); //required to exit editing mode and close modal
             }
@@ -200,6 +217,7 @@ const ValidUsersCrudTable = () => {
         setTableData(data || []);
     }, [
         isLoading,
+
     ])
     if (isLoading) return <div>Loading...</div>;
     if (isError) return <div>Error</div>;
