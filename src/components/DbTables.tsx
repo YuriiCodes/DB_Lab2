@@ -2,11 +2,13 @@ import {api} from "~/utils/api";
 import {Box, CircularProgress} from "@mui/material";
 import UsersCrudTable from "~/components/UsersCrudTable/UsersCrudTable";
 import SalaryCrudTable from "~/components/SalaryCrudTable/SalaryCrudTable";
+import ProjectsCrudTable from "~/components/ProjectsCrudTable/ProjectsCrudTable";
 
 // A component that performs data fetching and renders the tables
 export const TablesView = () => {
     const {data : usersData, isLoading: isUsersLoading, isError: isUsersError} = api.users.getAll.useQuery();
     const {data: salaryData, isLoading: isSalaryLoading, isError: isSalaryError} = api.salary.getAll.useQuery();
+    const {data: projectData, isLoading: isProjectLoading, isError: isProjectError} = api.projects.getAll.useQuery();
 
 
 
@@ -17,6 +19,10 @@ export const TablesView = () => {
     if (isSalaryLoading) return <CircularProgress />;
     if (isSalaryError) return <div>Error fetching salaries</div>;
 
+    if (isProjectLoading) return <CircularProgress />;
+    if (isProjectError) return <div>Error fetching projects</div>;
+
+
     return (
         <Box>
             <Box>
@@ -26,6 +32,10 @@ export const TablesView = () => {
             <Box>
                 <h2>Salaries</h2>
                 <SalaryCrudTable data={salaryData} users={usersData}/>
+            </Box>
+            <Box>
+                <h2>Projects</h2>
+                <ProjectsCrudTable data={projectData} users={usersData}/>
             </Box>
         </Box>
     )

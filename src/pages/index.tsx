@@ -1,9 +1,6 @@
 import {type NextPage} from "next";
 
-import {Box, CircularProgress, Container} from "@mui/material";
-import UsersCrudTable from "~/components/UsersCrudTable/UsersCrudTable";
-import SalaryCrudTable from "~/components/SalaryCrudTable/SalaryCrudTable";
-import {api} from "~/utils/api";
+import {Box, Container} from "@mui/material";
 import {TablesView} from "~/components/DbTables";
 
 const Home: NextPage = () => {
@@ -11,8 +8,6 @@ const Home: NextPage = () => {
         <Container maxWidth={"xl"}>
             <Box
                 sx={{
-                    border: "1px solid",
-                    height: "100vh",
                     width: "100%",
                     display: "flex",
                     flexDirection: "column",
