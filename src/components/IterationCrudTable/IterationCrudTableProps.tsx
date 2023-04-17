@@ -22,7 +22,6 @@ import {type inferRouterOutputs} from "@trpc/server";
 import {type AppRouter} from "~/server/api/root";
 import {api} from "~/utils/api";
 import toast from "react-hot-toast";
-import {type UserType} from "~/components/UsersCrudTable/UsersCrudTable";
 import {type ProjectType} from "~/components/ProjectsCrudTable/ProjectsCrudTable";
 
 
