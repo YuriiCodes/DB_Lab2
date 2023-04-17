@@ -1,7 +1,8 @@
 import {type NextPage} from "next";
 
 import {Box, Container} from "@mui/material";
-import {TablesView} from "~/components/DbTables";
+import {TasksView} from "~/components/DbTables";
+import {SimpleQueriesView} from "~/components/SimpleQueriesView/SimpleQueriesView";
 
 const Home: NextPage = () => {
     return (
@@ -14,7 +15,8 @@ const Home: NextPage = () => {
                     alignItems: "center",
                 }}
             >
-                <TablesView />
+
+                <TasksView />
             </Box>
         </Container>
 
