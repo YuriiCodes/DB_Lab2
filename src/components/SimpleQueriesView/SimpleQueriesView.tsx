@@ -21,7 +21,7 @@ const FirstQuery = (props: { projects: ProjectType[] }) => {
     });
     return (
         <Box sx={{border: 1, borderColor: "grey.500", p: 2, m: 2}}>
-            <h3>1. Get all the tasks assigned to a specific project:</h3>
+            <h3>{`1. Get all the tasks assigned to a specific project:`}</h3>
             {/*    render a select from material ui to select the user ID:*/}
             <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Project</InputLabel>
@@ -76,7 +76,7 @@ const SecondQuery = (props: { projects: ProjectType[] }) => {
 
     return (
         <Box sx={{border: 1, borderColor: "grey.500", p: 2, m: 2}}>
-            <h3>2. Get all the users assigned to a specific project:</h3>
+            <h3>{`2. Get all the users assigned to a specific project:`}</h3>
             <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Project</InputLabel>
                 <Select
@@ -131,7 +131,7 @@ const ThirdQuery = (props: { users: UserType[] }) => {
 
     return (
         <Box sx={{border: 1, borderColor: "grey.500", p: 2, m: 2}}>
-            <h3>3. Get the salary of a specific user:</h3>
+            <h3>{`3. Get the salary of a specific user:`}</h3>
             <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">User</InputLabel>
                 <Select
@@ -184,7 +184,7 @@ const FourthQuery = (props: { users: UserType[] }) => {
     })
     return (
         <Box sx={{border: 1, borderColor: "grey.500", p: 2, m: 2}}>
-            <h3>4. Get all the tasks assigned to a specific user:</h3>
+            <h3>{`4. Get all the tasks assigned to a specific user:`}</h3>
             <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">User</InputLabel>
                 <Select
@@ -239,7 +239,7 @@ const FifthQuery = (props: { projects: ProjectType[] }) => {
     })
     return (
         <Box sx={{border: 1, borderColor: "grey.500", p: 2, m: 2}}>
-            <h3>5. Get the owner of a specific project:</h3>
+            <h3>{`5. Get the owner of a specific project:`}</h3>
             <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Project</InputLabel>
                 <Select

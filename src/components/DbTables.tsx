@@ -7,6 +7,7 @@ import IterationCrudTable from "~/components/IterationCrudTable/IterationCrudTab
 import TaskCrudTable from "~/components/TaskCrudTable/TaskCrudTable";
 import ProjectMemberCrudTable from "~/components/ProjectMemberCrudTable/ProjectMemberCrudTable";
 import {SimpleQueriesView} from "~/components/SimpleQueriesView/SimpleQueriesView";
+import {ComplexQueriesView} from "~/components/ComplexQueriesView/ComplexQueriesView";
 
 // A component that performs data fetching and renders the tables
 export const TasksView = () => {
@@ -76,7 +77,13 @@ export const TasksView = () => {
                 />
             </Box>
 
+            <Box>
             <h2>Complex queries</h2>
+                <ComplexQueriesView users={usersData}
+                                    salary={salaryData}
+                                    projects={projectData}
+                />
+            </Box>
         </Box>
     )
 }
