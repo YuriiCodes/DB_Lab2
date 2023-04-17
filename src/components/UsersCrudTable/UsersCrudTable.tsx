@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import MaterialReactTable, {
     type MaterialReactTableProps,
     type MRT_Cell,
@@ -27,10 +27,13 @@ import toast from "react-hot-toast";
 type RouterOutput = inferRouterOutputs<AppRouter>;
 export type UserType = RouterOutput["users"]["getAll"][0];
 
-const ValidUsersCrudTable = () => {
+
+type ValidUsersCrudTableProps = {
+    data: UserType[];
+}
+const UsersCrudTable = ({data}: ValidUsersCrudTableProps) => {
     const ctx = api.useContext();
 
-    const {data, isLoading, isError} = api.users.getAll.useQuery();
     const {mutate: createUser} = api.users.create.useMutation({
         onSuccess: () => {
             void ctx.users.invalidate();
@@ -212,16 +215,6 @@ const ValidUsersCrudTable = () => {
         ],
         [getCommonEditTextFieldProps],
     );
-
-    useEffect(() => {
-        setTableData(data || []);
-    }, [
-        isLoading,
-
-    ])
-    if (isLoading) return <div>Loading...</div>;
-    if (isError) return <div>Error</div>;
-
     return (
         <>
             <MaterialReactTable
@@ -387,4 +380,4 @@ const validateUsername = (username: string) =>
     username.match(/^[a-zA-Z0-9_-]{3,20}$/);
 
 
-export default ValidUsersCrudTable;
+export default UsersCrudTable;

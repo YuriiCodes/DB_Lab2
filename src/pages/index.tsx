@@ -1,13 +1,12 @@
 import {type NextPage} from "next";
 
-import {Box, Container} from "@mui/material";
-import {UsersTable} from "~/components/UsersTable";
-import ValidUsersCrudTable from "~/components/UsersCrudTable/ValidUsersCrudTable";
+import {Box, CircularProgress, Container} from "@mui/material";
+import UsersCrudTable from "~/components/UsersCrudTable/UsersCrudTable";
+import SalaryCrudTable from "~/components/SalaryCrudTable/SalaryCrudTable";
+import {api} from "~/utils/api";
+import {TablesView} from "~/components/DbTables";
 
 const Home: NextPage = () => {
-    // call the trpc client & get all users
-
-
     return (
         <Container maxWidth={"xl"}>
             <Box
@@ -20,9 +19,7 @@ const Home: NextPage = () => {
                     alignItems: "center",
                 }}
             >
-
-                <UsersTable />
-                <ValidUsersCrudTable />
+                <TablesView />
             </Box>
         </Container>
 
