@@ -266,7 +266,7 @@ const FifthQuery = (props: { projects: ProjectType[] }) => {
             {(owner ) && <Box>
                 <h4>Project owner:</h4>
                 <ul>
-                    <li>{owner.username}</li>
+                    <li>{owner.username || "No owner"}</li>
                 </ul>
             </Box>}
             {(!owner) && <Box>
