@@ -5,6 +5,7 @@ import SalaryCrudTable from "~/components/SalaryCrudTable/SalaryCrudTable";
 import ProjectsCrudTable from "~/components/ProjectsCrudTable/ProjectsCrudTable";
 import IterationCrudTable from "~/components/IterationCrudTable/IterationCrudTableProps";
 import TaskCrudTable from "~/components/TaskCrudTable/TaskCrudTable";
+import ProjectMemberCrudTable from "~/components/ProjectMemberCrudTable/ProjectMemberCrudTable";
 
 // A component that performs data fetching and renders the tables
 export const TablesView = () => {
@@ -13,6 +14,7 @@ export const TablesView = () => {
     const {data: projectData, isLoading: isProjectLoading, isError: isProjectError} = api.projects.getAll.useQuery();
     const {data: iterationData, isLoading: isIterationLoading, isError: isIterationError} = api.iteration.getAll.useQuery();
     const {data: taskData, isLoading: isTaskLoading, isError: isTaskError} = api.task.getAll.useQuery();
+    const {data: projectMembersData, isLoading: isProjectMembersLoading, isError: isProjectMembersError} = api.projectMember.getAll.useQuery();
 
 
 
@@ -32,6 +34,9 @@ export const TablesView = () => {
     if (isTaskLoading) return <CircularProgress />;
     if (isTaskError) return <div>Error fetching tasks</div>;
 
+    if (isProjectMembersLoading) return <CircularProgress />;
+    if (isProjectMembersError) return <div>Error fetching project members</div>;
+
 
     return (
         <Box>
@@ -46,6 +51,10 @@ export const TablesView = () => {
             <Box>
                 <h2>Projects</h2>
                 <ProjectsCrudTable data={projectData} users={usersData}/>
+            </Box>
+            <Box>
+                <h2>Project members</h2>
+                <ProjectMemberCrudTable data={projectMembersData} users={usersData} projects={projectData}/>
             </Box>
             <Box>
                 <h2>Iteration</h2>
