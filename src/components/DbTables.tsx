@@ -79,10 +79,7 @@ export const TasksView = () => {
 
             <Box>
             <h2>Complex queries</h2>
-                <ComplexQueriesView users={usersData}
-                                    salary={salaryData}
-                                    projects={projectData}
-                />
+                <ComplexQueriesView/>
             </Box>
         </Box>
     )
