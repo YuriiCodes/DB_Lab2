@@ -93,7 +93,10 @@ const SalaryCrudTable = ({data, users}: SalaryCrudTableProps) => {
 
 
     const handleCreateNewRow = (values: Omit<SalaryType, 'id'>) => {
-        createSalary(values);
+        createSalary({
+            ...values,
+            amount: Number(values.amount),
+        });
         tableData.push({...values, id: tableData.length + 1});
         setTableData([...tableData]);
     };
@@ -102,15 +105,21 @@ const SalaryCrudTable = ({data, users}: SalaryCrudTableProps) => {
         // eslint-disable-next-line @typescript-eslint/require-await
         async ({exitEditingMode, row, values}) => {
             if (!Object.keys(validationErrors).length) {
+                const updatedValues = {
+                    ...values,
+                    id: Number(values.id),
+                    amount: Number(values.amount) // convert amount to number
+                };
 
                 // send || receive api updates here,
                 // then refetch or update local table data for re-render
-                updateSalary({...values, id: Number(values.id)})
-                tableData[row.index] = values;
+                updateSalary(updatedValues);
+                tableData[row.index] = updatedValues;
                 setTableData([...tableData]);
                 exitEditingMode(); //required to exit editing mode and close modal
             }
         };
+
 
     const handleCancelRowEdits = () => {
         setValidationErrors({});

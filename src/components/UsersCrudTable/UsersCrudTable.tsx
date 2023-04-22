@@ -122,8 +122,8 @@ const UsersCrudTable = ({data}: ValidUsersCrudTableProps) => {
             deleteUser({
                 id: row.getValue('id')
             });
-            // tableData.splice(row.index, 1);
-            // setTableData([...tableData]);
+            tableData.splice(row.index, 1);
+            setTableData([...tableData]);
         },
         [tableData],
     );

@@ -43,66 +43,51 @@ export const userRouter = createTRPCRouter({
             id: z.number()
         })
     ).mutation(async ({ctx, input}) => {
-        await ctx.prisma.projectMember.deleteMany({
-            where: {
-                userId: input.id
-            }
-        });
-        await ctx.prisma.salary.deleteMany({
-            where: {
-                userId: input.id
+        const userId = input.id;
 
-            }
-        });
-        //find all the projects that the user is the owner of
-        const projects = await ctx.prisma.project.findMany({
-            where: {
-                ownerId: input.id
-            }
-        })
-
-//find all the iterations that belong to the projects that the user is the owner of
-        const iterations = await ctx.prisma.iteration.findMany({
-                where: {
-                    projectId: {
-                        in: projects.map(project => project.id)
-
-                    }
-                }
-            }
-        )
-
-        //delete all the tasks that belong to the iterations that belong to the projects that the user is the owner of
+        // Delete tasks where the user is the creator
         await ctx.prisma.task.deleteMany({
             where: {
-                iterationId: {
-                    in: iterations.map(iteration => iteration.id)
-                }
-            }
-        })
+                creatorId: userId,
+            },
+        });
 
-        //delete all the iterations that belong to the projects that the user is the owner of
-        await ctx.prisma.iteration.deleteMany({
+        // Remove the user as executor from tasks
+        await ctx.prisma.task.updateMany({
             where: {
-                id: {
-                    in: iterations.map(iteration => iteration.id)
-                }
-            }})
+                executorId: userId,
+            },
+            data: {
+                executorId: null,
+            },
+        });
 
-        //delete all the projects that the user is the owner of
+        // Delete ProjectMember entries for the user
+        await ctx.prisma.projectMember.deleteMany({
+            where: {
+                userId: userId,
+            },
+        });
+
+        // Delete the projects owned by the user
         await ctx.prisma.project.deleteMany({
             where: {
-                id: {
-                    in: projects.map(project => project.id)
-                }
-            }
-        })
+                ownerId: userId,
+            },
+        });
 
-        //delete all the
+        // Delete the user's Salary if exists
+        await ctx.prisma.salary.deleteMany({
+            where: {
+                userId: userId,
+            },
+        });
+
+        // Delete the user
         return ctx.prisma.user.delete({
             where: {
-                id: input.id
-            }
+                id: userId,
+            },
         });
     })
 });
