@@ -109,165 +109,133 @@ export const queriesRouter = createTRPCRouter({
             }),
 
 //     COMPLEX QUERIES:
-//     1. Find all users who have a salary greater than a specific amount, and who are assigned to at least one task with a status of "done":
-            getUsersBySalaryAndTaskStatus: publicProcedure.input(
-                z.object({
-                        salary: z.number(),
+
+            // 1. Find users involved in all available projects.
+            getUsersInAllProjects: publicProcedure.mutation(async ({ctx}) => {
+                // Знайдіть всі проекти
+                const allProjectIds = await ctx.prisma.project.findMany().then(projects => projects.map(project => project.id));
+
+                // Знайдіть користувачів, які є учасниками усіх проектів
+                return await ctx.prisma.user.findMany({
+                    where: {
+                        projectMembers: {
+                            every: {
+                                projectId: {
+                                    in: allProjectIds
+                                }
+                            }
+                        }
                     }
-                )).mutation(async ({ctx, input}) => {
-                    return await ctx.prisma.user.findMany({
-                        where: {
+                });
+            }),
+
+
+            // 2. Find the username of users who work on the same projects as the user with the given email.
+            getUsersInSameProjectsByEmail: publicProcedure.input(
+                z.object({
+                    email: z.string(),
+                })).mutation(async ({ctx, input}) => {
+                // Знайдіть проекти користувача за email
+                const userProjects = await ctx.prisma.projectMember.findMany({
+                    where: {
+                        user: {
+                            email: input.email
+                        }
+                    }
+                }).then(members => members.map(member => member.projectId));
+
+                // Знайдіть користувачів, які є учасниками цих проектів
+                return await ctx.prisma.user.findMany({
+                    where: {
+                        projectMembers: {
+                            some: {
+                                projectId: {
+                                    in: userProjects
+                                }
+                            }
+                        }
+                    }
+                });
+            }),
+
+            // 3. Знайти назви проектів, кожен працівник з яких отримує заробітню плату >=, що й розробник із заданим email.
+            getProjectsBySalary: publicProcedure.input(
+                z.object({
+                    email: z.string(),
+                })).mutation(async ({ctx, input}) => {
+                // Знайдіть користувача за email
+                const user = await ctx.prisma.user.findUnique({
+                    where: {
+                        email: input.email
+                    }
+                });
+
+                if (!user) {
+                    throw new Error('User not found');
+                }
+
+                // Знайдіть зарплату користувача за userId
+                const userSalary = await ctx.prisma.salary.findUnique({
+                    where: {
+                        userId: user.id
+                    }
+                }).then(salary => salary ? salary.amount : null);
+
+                if (!userSalary) {
+                    throw new Error('Salary not found');
+                }
+
+                // Знайдіть проекти, в яких кожен працівник отримує зарплату >= користувача
+                const projectIds = await ctx.prisma.projectMember.findMany({
+                    where: {
+                        user: {
                             salary: {
                                 amount: {
-                                    gt: input.salary,
-                                }
-                            },
-                            assignedTasks: {
-                                some: {
-                                    status: "DONE"
+                                    gte: userSalary
                                 }
                             }
                         }
-                    });
-                }
-            ),
-
-
-//     2. Find all projects that have more than a specific number of iterations,
-//     and that have at least one user assigned to them:
-            getProjectsByIterationsAndUsers: publicProcedure.input(
-                z.object({
-                        iterationsNumber: z.number(),
                     }
-                )).mutation(async ({ctx, input}) => {
-                const projectsIds = await ctx.prisma.project.findMany().then(projects => {
-                    return projects.map(project => project.id)
-                });
-
-                const iterations = await ctx.prisma.iteration.findMany();
-
-                const projectsIdsWithMoreThanIterationsNumber = projectsIds.filter(projectId => {
-                        return iterations.filter(iteration => iteration.projectId === projectId).length > input.iterationsNumber;
-                    }
-                );
-
-                // find all projects with at least one user assigned to them
-                const projectMembers = await ctx.prisma.projectMember.findMany();
-
-                const projectsIdsWithUsers = projectMembers.map(projectMember => projectMember.projectId);
-
-                // return the intersection of the two arrays
-                const projectsIdsWithMoreThanIterationsNumberAndUsers = projectsIdsWithMoreThanIterationsNumber.filter(projectId => projectsIdsWithUsers.includes(projectId));
+                }).then(members => members.map(member => member.projectId));
 
                 return await ctx.prisma.project.findMany({
-
                     where: {
                         id: {
-                            in: projectsIdsWithMoreThanIterationsNumberAndUsers
+                            in: projectIds
                         }
                     }
                 });
             }),
 
-            //  3. Find all users who are assigned to at least one task with a status of {firstInput},
-            // and who are also assigned to at least one task with a status of {secondInput}:
-            getUsersByTasksStatus: publicProcedure.input(
+
+            // 4 Знайти всіх користувачів, які не беруть участь в жодному з проектів користувача з вказаним username
+            getUsersNotInUserProjects: publicProcedure.input(
                 z.object({
-                    firstStatus: z.string(),
-                    secondStatus: z.string(),
-                })
-            ).mutation(async ({ctx, input}) => {
-                //find all tasks with status = firstStatus
-                const firstStatusTasks = await ctx.prisma.task.findMany({
-                        where: {
-                            status: input.firstStatus
-
+                    username: z.string(),
+                })).mutation(async ({ctx, input}) => {
+                // Знайдіть проекти користувача за username
+                const userProjects = await ctx.prisma.projectMember.findMany({
+                    where: {
+                        user: {
+                            username: input.username
                         }
                     }
-                );
+                }).then(members => members.map(member => member.projectId));
 
-                //find all tasks with status = secondStatus
-                const secondStatusTasks = await ctx.prisma.task.findMany({
-                        where: {
-                            status: input.secondStatus
-                        }
-
-                    }
-                );
-
-
-                //find all userIds from firstStatusTasks
-                const firstStatusTasksUserIds = firstStatusTasks.map(task => task.executorId);
-
-                //find all userIds from secondStatusTasks
-                const secondStatusTasksUserIds = secondStatusTasks.map(task => task.executorId);
-
-                //find the intersection of the two arrays
-                const userIds = firstStatusTasksUserIds.filter(userId => secondStatusTasksUserIds.includes(userId));
-
-                //make sure  userIds are number[], and not (number | null)[]:
-                const userIdsNumber = userIds.map(userId => userId as number);
-
-                //find all users with userIds
+                // Знайдіть користувачів, які не є учасниками цих проектів
                 return await ctx.prisma.user.findMany({
-                        where: {
-                            id: {
-                                in: userIdsNumber
-                            }
-                        }
-
-                    }
-                );
-
-            }),
-
-            // 4. Find all projects that have {input} users assigned to them, and where some task points
-            // is greater than {input}:
-            getProjectsByUsersAndTasksPoints: publicProcedure.input(
-                z.object({
-                        usersNumber: z.number(),
-                        tasksPoints: z.number(),
-                    }
-                )).mutation(async ({ctx, input}) => {
-                    //find projects with usersNumber users assigned to them
-                    const projectMembers = await ctx.prisma.projectMember.findMany()
-
-                    // find all projectIds with input.usersNumber users assigned to them
-                    const projectsIdsWithUsersNumberUsers = projectMembers.filter(projectMember => {
-                            return projectMembers.filter(pm => pm.projectId === projectMember.projectId).length === input.usersNumber;
-                        }
-                    ).map(projectMember => projectMember.projectId);
-
-                    //make sure projectsIdsWithUsersNumberUsers has only unique values
-                    const projectsWithUsers = projectsIdsWithUsersNumberUsers.filter((projectId, index) => projectsIdsWithUsersNumberUsers.indexOf(projectId) === index);
-
-
-                    //find all the iterations of the projects
-                    const iterations = await ctx.prisma.iteration.findMany({
-                        where: {
-                            projectId: {
-                                in: projectsWithUsers
-                            },
-                            tasks: {
-                                some: {
-                                    points: {
-                                        gt: input.tasksPoints
-                                    }
+                    where: {
+                        projectMembers: {
+                            none: {
+                                projectId: {
+                                    in: userProjects
                                 }
                             }
                         }
-                    });
-                    // get the projectIds of the iterations
-                    const projectsIds = iterations.map(iteration => iteration.projectId);
-                    return await ctx.prisma.project.findMany({
-                        where: {
-                            id: {
-                                in: projectsIds
-                            }
-                        }
-                    });
-                }
-            ),
+                    }
+                });
+            }),
+
 
         }
     )
