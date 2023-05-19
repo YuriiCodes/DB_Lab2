@@ -262,7 +262,7 @@ const IterationCrudTable = ({data, projects}: IterationCrudTableProps) => {
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        Create New Iteration
+                        Add new record
                     </Button>
                 )}
             />
@@ -388,7 +388,7 @@ export const CreateNewAccountModal = ({
             <DialogActions sx={{p: '1.25rem'}}>
                 <Button onClick={onClose}>Cancel</Button>
                 <Button color="secondary" onClick={handleSubmit} variant="contained">
-                    Create New Iteration
+                    Add new record
                 </Button>
             </DialogActions>
         </Dialog>

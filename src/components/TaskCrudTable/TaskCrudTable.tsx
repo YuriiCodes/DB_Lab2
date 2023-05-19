@@ -303,7 +303,7 @@ const TaskCrudTable = ({data, iterations, users}: IterationCrudTableProps) => {
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        Create New Task
+                        Add new record
                     </Button>
                 )}
             />

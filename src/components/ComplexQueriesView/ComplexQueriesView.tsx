@@ -4,6 +4,7 @@ import {UserType} from "~/components/UsersCrudTable/UsersCrudTable";
 import {api} from "~/utils/api";
 import toast from "react-hot-toast";
 import {ProjectType} from "~/components/ProjectsCrudTable/ProjectsCrudTable";
+import {IterationType} from "~/components/IterationCrudTable/IterationCrudTableProps";
 
 
 const FirstQuery = () => {
@@ -214,6 +215,58 @@ const FourthQuery = () => {
     )
 }
 
+const FifthQuery = () => {
+    const [iterationName, setIterationName] = useState("");
+    const [iterations, setIterations] = useState<string[]>([]);
+    const {mutate: getIterationsWithSameTasks} = api.queries.getIterationsWithSameTasks.useMutation({
+        onSuccess: (data) => {
+            if (data) {
+                setIterations(data);
+            }
+        },
+        onError: (error) => {
+            toast.error("Error executing query");
+        }
+    });
+
+    return (
+        <Box sx={{border: 1, borderColor: "grey.500", p: 2, m: 2}}>
+            <h3>{`5. Find all iterations with the same set of tasks as the given iteration:`}
+            </h3>
+
+            <FormControl sx={{m: 1, minWidth: 120}}>
+                <TextField
+                    id="outlined-controlled"
+                    label="Iteration Name"
+                    type={"text"}
+                    value={iterationName}
+                    onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                        setIterationName(event.target.value);
+                    }}
+                />
+                {iterationName && <Button onClick={() => {
+                    getIterationsWithSameTasks({iterationName: iterationName})
+                }
+                }>Execute query
+                </Button>}
+            </FormControl>
+
+            {(iterations && iterations.length > 0) && <Box>
+                <h4>Iterations: </h4>
+                <ul>
+                    {iterations.map((iteration, id) => {
+                        return <li key={id}>{iteration}
+                        </li>
+                    })}
+                </ul>
+            </Box>}
+
+            {(!iterations || iterations.length === 0) && <Box>
+                <h4>No iterations found matching the following criteria.</h4>
+            </Box>}
+        </Box>
+    )
+}
 
 export const ComplexQueriesView = () => {
     return (
@@ -222,6 +275,7 @@ export const ComplexQueriesView = () => {
             <SecondQuery/>
             <ThirdQuery/>
             <FourthQuery/>
+            <FifthQuery/>
         </Box>
 
     )

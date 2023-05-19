@@ -252,7 +252,7 @@ const SalaryCrudTable = ({data, users}: SalaryCrudTableProps) => {
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        add new salary
+                        Add new record
                     </Button>
                 )}
             />

@@ -1,0 +1,14 @@
+SELECT p.name
+FROM projects AS p
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM project_members AS pm
+    JOIN users AS u ON pm.user_id = u.id
+    JOIN salaries AS s ON u.id = s.user_id
+    WHERE pm.project_id = p.id AND s.amount < (
+        SELECT s2.amount
+        FROM users AS u2
+        JOIN salaries AS s2 ON u2.id = s2.user_id
+        WHERE u2.email = '{email}'
+    )
+)

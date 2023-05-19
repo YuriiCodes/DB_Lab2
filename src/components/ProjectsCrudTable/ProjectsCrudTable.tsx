@@ -269,7 +269,7 @@ const ProjectsCrudTable = ({data, users}: ProjectsCrudTableProps) => {
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        Create New Project
+                        Add new record
                     </Button>
                 )}
             />

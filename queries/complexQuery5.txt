@@ -1,0 +1,17 @@
+WITH target_iteration_tasks AS (
+    SELECT task.id FROM task
+    JOIN iteration ON task.iterationId = iteration.id
+    WHERE iteration.name = 'target_iteration_name'
+),
+iterations_with_same_tasks AS (
+    SELECT iteration.name FROM iteration
+    JOIN task ON task.iterationId = iteration.id
+    WHERE NOT EXISTS (
+        SELECT 1 FROM target_iteration_tasks
+        WHERE NOT EXISTS (
+            SELECT 1 FROM task
+            WHERE task.id = target_iteration_tasks.id AND task.iterationId = iteration.id
+        )
+    )
+)
+SELECT name FROM iterations_with_same_tasks;

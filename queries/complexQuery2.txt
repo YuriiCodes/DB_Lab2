@@ -1,0 +1,6 @@
+SELECT DISTINCT u2.username
+FROM users AS u1
+JOIN project_members AS pm1 ON u1.id = pm1.user_id
+JOIN project_members AS pm2 ON pm1.project_id = pm2.project_id
+JOIN users AS u2 ON pm2.user_id = u2.id
+WHERE u1.email = '{email}' AND u1.id != u2.id;

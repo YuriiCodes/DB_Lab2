@@ -237,6 +237,42 @@ export const queriesRouter = createTRPCRouter({
             }),
 
 
+
+
+            // Знайти назву ітерації, яка має таку  ж множину задач, як і ітерація {iteration.name}
+            getIterationsWithSameTasks: publicProcedure.input(
+                z.object({
+                    iterationName: z.string(),
+                })).mutation(async ({ctx, input}) => {
+                // Знайдіть набір задач для даної ітерації
+                const targetIterationTasks = await ctx.prisma.task.findMany({
+                    where: {
+                        iteration: {
+                            name: input.iterationName
+                        }
+                    },
+                    select: {
+                        id: true,
+                    }
+                }).then(tasks => tasks.map(task => task.id));
+
+                // Знайдіть усі ітерації
+                const allIterations = await ctx.prisma.iteration.findMany({
+                    include: {
+                        tasks: true,
+                    }
+                });
+
+                // Виберіть ті ітерації, задачі яких співпадають із задачами цільової ітерації
+                const matchingIterations = allIterations.filter(iteration => {
+                    const taskIds = iteration.tasks.map(task => task.id);
+                    return JSON.stringify(taskIds.sort()) === JSON.stringify(targetIterationTasks.sort());
+                });
+
+                return matchingIterations.map(iteration => iteration.name);
+            }),
+
+
         }
     )
 ;

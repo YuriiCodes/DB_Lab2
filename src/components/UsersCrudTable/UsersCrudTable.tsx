@@ -253,7 +253,7 @@ const UsersCrudTable = ({data}: ValidUsersCrudTableProps) => {
                         onClick={() => setCreateModalOpen(true)}
                         variant="contained"
                     >
-                        Create New User
+                        Add new record
                     </Button>
                 )}
             />

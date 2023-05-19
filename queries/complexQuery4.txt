@@ -1,0 +1,6 @@
+SELECT DISTINCT u.username
+FROM users AS u
+JOIN tasks AS t ON t.executor_id = u.id
+WHERE t.status IN ('DONE', 'IN_PROGRESS')
+GROUP BY u.id
+HAVING COUNT(DISTINCT t.status) = 2;
