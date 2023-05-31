@@ -59,7 +59,7 @@ export const queriesRouter = createTRPCRouter({
                 }
             ),
 
-            //     3. Get the salary of a specific user:
+            //     3. Get the salary of a specific user: {is}
             getSalaryByUserId: publicProcedure.input(
                 z.object({
                     userId: z.number(),
